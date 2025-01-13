@@ -11,6 +11,8 @@ requires-python = ">=3.13"
 
 [tool.poetry.dependencies]
 python = "3.13.1"
+aiogram = "3.17.0"
+asyncpg = "0.30.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "0.5.4"
