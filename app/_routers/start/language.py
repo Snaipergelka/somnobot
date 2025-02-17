@@ -1,16 +1,20 @@
-from aiogram import html, F
+from aiogram import html, F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
-from app.main import dp
+from app.utils.enums import BotLanguage
+
+start_router = Router()
 
 
-@dp.message(CommandStart())
+class UserState(StatesGroup):
+    choose_language = State()
+
+
+@start_router.message(CommandStart())
 async def command_start_handler(message: Message, state: FSMContext) -> None:
-    """
-    This handler receives messages with `/start` command
-    """
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="English"), KeyboardButton(text="Русский")]
@@ -27,21 +31,22 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
         """,
         reply_markup=keyboard,
     )
-    await state.set_state("choose_language")
+    await state.set_state(UserState.choose_language)
 
 
-@dp.message(F.text.in_({"English", "Русский"}), state="choose_language")
+@start_router.message(F.text.in_({"English", "Русский"}), UserState.choose_language)
 async def save_language_choice(message: Message, state: FSMContext) -> None:
-    """
-    Save the user's start choice in the environment
-    """
     language = message.text
+
+    # TODO save to user
     tg_user_id = message.from_user.id
 
-    if language == "English":
+    if language == BotLanguage.en:
         response = "Thank you! Your start has been set to English."
-    else:
+    elif language == BotLanguage.ru:
         response = "Спасибо! Ваш язык установлен на Русский."
+    else:
+        response = "..."
 
     await message.answer(response)
     await state.clear()

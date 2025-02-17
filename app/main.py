@@ -6,19 +6,20 @@ from os import getenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.types import BotCommand
+
+from app._routers.start.language import start_router
 
 TOKEN = getenv("BOT_TOKEN")
 
-# All handlers should be attached to the Router (or Dispatcher)
-
 dp = Dispatcher()
+dp.include_router(start_router)
 
 
 async def main() -> None:
-    # Initialize Bot instance with default bot properties which will be passed to all API calls
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    await bot.set_my_commands([BotCommand(command="start", description="Start bot")])
 
-    # And the run events dispatching
     await dp.start_polling(bot)
 
 
